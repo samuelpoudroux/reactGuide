@@ -1,0 +1,30 @@
+
+@startmindmap redux 
+skinparam SequenceMessageAlignment center
+
+* state global
+**:Franchise State
+rrr;
+***:Consolidations
+-ConsolidationsSlice.js;
+***:ConsolidationsDetails
+-ConsolidationsDetailsSlice.js;
+**:DirectOrder State
+aaa;
+***:State1
+-State1Slice.js;
+***:State2
+-State2Slice.js;
+**:StockReporting State
+aaa;
+***:State1
+-State1Slice.js;
+***:State2
+-State2Slice.js;
+**:Fixture catalog State
+aaa;
+***:State1
+-State1Slice.js;
+***:State2
+-State2Slice.js;
+@endmindmap

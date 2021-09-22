@@ -1,0 +1,16 @@
+@startuml listOfComponents
+title listOfComponents
+skinparam Style strictuml
+skinparam SequenceMessageAlignment center
+package "My business" {
+  [SideBar] 
+  [Button]
+  [Header]
+  [DirectOrder]
+  [StockReporing]
+  [FixtureCatalog]
+  [Franchise]
+  [APP]  
+  [Pagination]
+}
+@enduml
