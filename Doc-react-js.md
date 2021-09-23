@@ -1,65 +1,4 @@
 ﻿<!-- # Summary -->
-<!-- # Plan
-# Partie 1 - Installation de l'environnement React 
-
-#### Prérequis 
-## A. Création d'un projet React
-## I. ## I. 3 Méthodes
-
--   ### Manuel avec webpack et babel
-    
--   ###  Create-React-App
-    #### 1. Installation de Create-React-App
-
-- ### Vite
-    #### 1. Installation de vite
-
-## II. Pourquoi vite plutôt que CRA
-
-# Partie 2 - Comment architecturer son projet React
-
-### A. IHM de référence
-
-### B. Conception technique 
-
-#### 1. React router
-
-#### 2. Gestion des états globaux
-#### Installation de redux et redux-toolkit
-
-## Schéma
-
-#### Exemple de la gestion de l'état de la configuration de notre application globale
-
-#### 3. Découpage des composants 
-
-#### 4. Requêtes Api
-
-#### 5. Communication entre les composants
-
-#### 6. Architecture globale  des fichiers 
-
-### C. Bonnes pratiques
-
-#### 1. Séparer la logique du rendu visuel
-
-#### 2. Principe de responsabilité unique
-
-#### 3. Destructuration des objets
-
-#### 4. Utilisation des propTypes
-
-#### 5. Utilisation des conditions de rendu 
-
-#### 6. Gestion des classes CSS
- 		
-#### 7. Utilisation d'un linter
-
-#### 8. Evitez les excès de commentaires
-
-### D. Librairies pratiques -->
-
- 
 
 # Partie 1 - Installation de l'environnement React 
 
@@ -69,9 +8,9 @@ Installation du serveur et gestionnaire de paquets
 
 node js => https://nodejs.org/en/
 
-## A. Création d'un projet React
-## I. 3 Méthodes
--   ### Manuel avec webpack et babel
+## Création d'un projet React
+## Méthodes
+- ### Manuel avec webpack et babel
    Suivre la prcocédure https://imranhsayed.medium.com/set-up-react-app-with-webpack-webpack-dev-server-and-babel-from-scratch-df398174446d
 
     **liens utiles:**
@@ -80,13 +19,13 @@ node js => https://nodejs.org/en/
 
     https://webpack.js.org/loaders/babel-loader/
 
--   ###  Create-React-App
+- ###  Create-React-App
 
-    #### 1. Installation de Create-React-App
+    #### Installation de Create-React-App
 Suivre la prcocédure https://create-react-app.dev/docs/getting-started
 
 - ### Vite
-    #### 1. Installation de vite
+    #### Installation de vite
 Suivre la prcocédure https://vitejs.dev/guide/
 
 ## II. Pourquoi VITE plutôt que CRA
@@ -106,23 +45,23 @@ En resumé pour les petits projets CRA peut être suffisant, en revanche utilise
 
 # Partie 2 - Comment architecturer son projet React
 
-### A. IHM de référence
+### IHM de référence
 ![IHM](./IHM_My_business.png)
 
-### B. Conception technique 
+### Conception technique 
 
-#### 1. React router
+#### React router
 
 Documentation : https://reactrouter.com/web/guides/quick-start
 
 Dans le contexte de notre IHM, l'application globale aura un router qui redirigera vers chaque features et ensuite chaque feature gére son propre router.
 
-#### 2. Gestion des états globaux
+#### Gestion des états globaux
 
 #### Installation de redux et redux-toolkit
 Suivre la proccédure de cette documentation https://redux.js.org/introduction/getting-started
 
-#### Schéma des multiples reducers
+#### Schéma des multiples reducers de notre application
 ![IHM](./out/redux/redux.svg)
 
 #### Exemple de gestion d'état de notre config
@@ -191,14 +130,35 @@ export const User = () => {
  ```
 
 
-#### 3. Découpage des composants 
+#### 3. Découpage des composants
 #### Schéma
 ![IHM](./out/listOfComponents/listOfComponents.svg)
-    - Communication entre composants 
-    - Eviter les rendus superflus
-    - Tests des composants (librairies + cas d'utilisations)
-    - Exemple de structure des fichiers d'un composant (custom hooks(ex: useFecth, useInput), services, jsx)
 
+#### Architecture fichier d'un composant
+Prenons par exemple le composant Button qui est situé dans le perimêtre global, nous découperons le composant ainsi
+
+    ├───Button
+        ├───index.jsx
+        ├───Button.css
+        ├───Services.js
+        ├───Services.test.js
+        ├───Button.test.jsx
+       
+Si un composant posséde des composants réutilisables seulement dans ce composant, créer un dossier components dans le perimêtre associé du composant comme par **exemple**
+
+    ───Button
+        ├───index.jsx
+        ├───Button.css
+        ├───Services.js
+        ├───Services.test.js
+        ├───Button.test.jsx
+        ├───Components
+            ├───IconButton
+                ├───index.jsx
+                ├───IconButton.css
+                ├───Services.js
+                ├───Services.test.js
+                ├───IconButton.test.jsx
 #### 4. Requêtes Api
 
     - fetch, axios 

@@ -1,0 +1,15 @@
+
+@startmindmap redux 
+skinparam SequenceMessageAlignment center
+skinparam classFontColor red
+
+skinparam sequence {
+ArrowColor black
+}
+skinparam State {
+  BorderColor Gray
+}
+
+[#SkyBlue]globalState
+
+@endmindmap

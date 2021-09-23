@@ -1,5 +1,5 @@
 @startuml listOfComponents
-title Découpage composants
+title Découpage composants en référence à notre IHM
 
 package "My business/components" {
   [SideBar] 
