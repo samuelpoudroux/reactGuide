@@ -1,30 +1,56 @@
 
 @startmindmap redux 
 skinparam SequenceMessageAlignment center
+skinparam classFontColor red
 
-* state global
-**:Franchise State
-rrr;
-***:Consolidations
+skinparam sequence {
+ArrowColor black
+}
+skinparam State {
+  BorderColor Gray
+}
+
+*[#SkyBlue]:globalState
+**combineReducers**({
+FranchiseState, 
+  directOrderState,
+  stockReportingState,
+  fixtureCatalogState
+});
+**[#green]:FranchiseState
+**combineReducers**({
+  consolidations, 
+  consolidationDetails
+});
+***[#LawnGreen]:Consolidations
 -ConsolidationsSlice.js;
-***:ConsolidationsDetails
+***[#LightGreen]:ConsolidationsDetails
 -ConsolidationsDetailsSlice.js;
-**:DirectOrder State
-aaa;
-***:State1
+**[#yellow]:directOrderState
+**combineReducers**({
+  state1, 
+  state2
+});
+***[#Gold]:State1
 -State1Slice.js;
-***:State2
+***[#GoldenRod]:State2
 -State2Slice.js;
-**:StockReporting State
-aaa;
-***:State1
+**[#grey]:stockReportingState
+**combineReducers**({
+  state1, 
+  state2
+});
+***[#LightGray]:State1
 -State1Slice.js;
-***:State2
+***[#Gainsboro]:State2
 -State2Slice.js;
-**:Fixture catalog State
-aaa;
-***:State1
+**[#pink]:fixtureCatalogState
+**combineReducers**({
+  state1, 
+  state2
+});
+***[#plum]:State1
 -State1Slice.js;
-***:State2
+***[#Thistle]:State2
 -State2Slice.js;
 @endmindmap
