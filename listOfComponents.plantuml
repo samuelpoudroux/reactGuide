@@ -1,16 +1,38 @@
 @startuml listOfComponents
-title listOfComponents
-skinparam Style strictuml
-skinparam SequenceMessageAlignment center
-package "My business" {
+title Découpage composants
+
+package "My business/components" {
   [SideBar] 
   [Button]
   [Header]
+  [APP]  
+  [Pagination]
+  [Table]
+  [Select]
+  [Checkbox]
+}
+package "MyBusiness/Features" {
   [DirectOrder]
   [StockReporing]
   [FixtureCatalog]
-  [Franchise]
-  [APP]  
-  [Pagination]
+  [Franchise] 
+}
+package "MyBusiness/components/Header/components" {
+  [User]
+  [SearchBar]
+  [Logo]
+  [AppName]
+}
+package "MyBusiness/components/SideBar/components" {
+  [CustomLink]
+}
+package "MyBusiness/components/Table/components" {
+  [TableHeader]
+  [TableRow]
+  [TableData]
+  [TableFooter]
+}
+package "MyBusiness/Features/Franchise/components" {
+  [*Header]
 }
 @enduml
