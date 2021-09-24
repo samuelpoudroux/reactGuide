@@ -1,6 +1,46 @@
-﻿<!-- # Summary -->
+﻿<!-- # SOMMAIRE -->
+#Sommaire
+ 1. [Partie 1. Installation de l'environnement React](#partie-1.-installation-de-l'environnement-react)
+    1. [Prérequis](#prérequis) 
+    2. [Création d'un projet React](#création-d'un-projet-react) 
+        1. [Méthodes](#méthodes)
+            1. [Manuel avec webpack et babel](#manuel-avec-webpack-et-babel)
+            2. [Create-React-App](#create-react-app)
+                1. [Installation de Create-React-App](#create-react-app)
+            3. [Vite](#vite)
+                1. [Installation de vite](#installation-de-vite)
+            4. [Pourquoi VITE plutôt que CRA](#pourquoi-vite-plutôt-que-cra)       
+ 2. [Partie 2. Comment architecturer son projet React](#partie-2.-comment-architecturer-son-projet-react)
+    1. [IHM de référence](#ihm-de-référence)
+    2. [Conception technique](#conception-technique)
+    3. [React Router](#react-router)
+    4. [Gestion des états globaux](#gestion-des-états-globaux)
+        1. [Installation de redux et redux-toolkit](#installation-de-redux-et-redux-toolkit)
+        2. [Schéma des multiples reducers de notre application](#schéma-des-multiples-reducers-de-notre-application)
+        3. [Exemple de gestion d'état de notre config](#exemple-de-gestion-d'état-de-notre-config)
+    5. [Découpage des composants](#découpage-des-composants)
+        1. [Schéma](#schéma)
+        2. [Architecture fichier d'un composant](#architecture-fichier-d'un-composant)
+    6. [Gestion Requêtes Api](#gestion-requêtes-api)
+        1. [React-Query](#react-query)
+            1. [L'interêt factuel d'utiliser React-query](#l'interêt-factuel-d'utiliser-react-query)
+                1. [Composant Consolidations sans l'utilisation de react Query](#composant-consolidations-sans-l'utilisation-de-react-query)
+                2. [Composant Consolidations avec l'utilisation de react Query](#composant-consolidations-avec-l'utilisation-de-react-query)
+    7. [Communication entre les composants](#communication-entre-les-composants)
+    8. [Architecture globale des fichiers de l'application](#architecture-globale-des-fichiers-de-l'application)
+    9. [Bonnes pratiques](#bonnes-pratiques)
+        1. [Séparer la logique du rendu visuel](#séparer-la-logique-du-rendu-visuel)
+        2. [Principe de responsabilité unique](#principe-de-responsabilité-unique)
+        3. [Destructuration des objets](#destructuration-des-objets)
+        4. [Utilisation des propTypes](#utilisation-des-proptypes)
+        5. [Utilisation des conditions de rendu](#utilisation-des-conditions-de-rendu) 
+        6. [Gestion des classes CSS](#gestion-des-classes-css)	
+        7. [Utilisation d'un linter](#utilisation-d'un-linter)
+        8. [Utilisation de sonarlint](#utilisation-de-sonarlint)
+        9. [Evitez les excès de commentaires](#evitez-les-excès-de-commentaires)
+        10. [Librairies pratiques](#librairies-pratiques)
 
-# Partie 1 - Installation de l'environnement React 
+# Partie 1. Installation de l'environnement React 
 
 #### Prérequis 
 
@@ -43,7 +83,7 @@ L'autre différence avec CRA est le temps du build de l'application pour le dév
 
 En resumé pour les petits projets CRA peut être suffisant, en revanche utilisez vite si le projet prend de l'ampleur.
 
-# Partie 2 - Comment architecturer son projet React
+# Partie 2. Comment architecturer son projet React
 
 ### IHM de référence
 ![IHM](./IHM_My_business.png)
@@ -101,8 +141,6 @@ export default configSlice.reducer;
 // On export des hooks customisés afin d'éviter la duplication de code dans tous les composants
 export const useUser = () => useSelector(getUser);
 export const useSelectedStore = () => useSelector(getSelectedStore);
-export const useSelectedStoreId = () => useSelectedStore()?.id;
-
 }
 ``` 
 
@@ -120,17 +158,21 @@ export const User = () => {
     // Récupération des données users au travers de notre custom hook
     const user = useUser();
 
-    //dispatch l'action updateUser no va ensuite mettre à jour le store user de redux avec les données récoltées 
-    useEffect(async () => {
-         dispatch(updateUser(await getUser()));
+    //dispatch l'action updateUser qui va ensuite mettre à jour le store user de redux avec les données récoltées 
+
+    useEffect(() => {
+         dispatch(updateUser(getUser()));
     }, []);
 
     return <h1>{user?.name}</h1>
     }
  ```
+ 
+### Découpage des composants
+Découper l'IHM en composants permet de concéptualiser notre application à savoir les composants qui seront utilisables sur l'application globale ou uniquement par un composant plus restreint. 
 
+A travers le schéma ci dessous, nous avons découpé les composants qui seraient utilisables dans un perimêtre global ou plutôt restreint. Plus on découpe mieux cela est pour la maintenabilité du code.
 
-#### 3. Découpage des composants
 #### Schéma
 ![IHM](./out/listOfComponents/listOfComponents.svg)
 
@@ -159,47 +201,158 @@ Si un composant posséde des composants réutilisables seulement dans ce composa
                 ├───Services.js
                 ├───Services.test.js
                 ├───IconButton.test.jsx
-#### 4. Requêtes Api
+### Gestion Requêtes Api
+#### React-Query
+Documentation => https://react-query.tanstack.com/overview
 
-    - fetch, axios 
-    - react-query 
-    - useEffect
+Cette bibliothéque  facilite la récupération, la mise en cache, la synchronisation et la mise à jour de l'état du serveur de nos applications React. Cela permet également d'éviter d'ajouter du code superflux.
 
-#### 5. Communication entre les composants
+Par exemple dans notre [IHM](#ihm-de-référence) nous avons besoin de créer un composant qui renverra une liste de consolidations. Ce composant peut être largement simplifié grace au hook react-query, ce qui simplifie la lisibilité du code en plus de tous les autres avantages liés à cette bibliothéque.
+
+#### L'interêt factuel d'utiliser React-query
+##### Composant Consolidations sans l'utilisation de react Query
+```jsx
+import React, {useEffetct, useState} from 'react'
+import {fetchConsolidations } from 'services'
+
+const Consolidations = () => {
+    // C'est trois lignes peuvent être éco par react query
+    const [data, setData] = useState()
+    const [isLoading, setIsLoading] = useState(false)
+    const [error, setError] = useState(false)
+
+    // Cette fonction également
+    const getConsolidations = async () => {
+        setIsLoading(true)
+         try {
+            setData(await fetchConsolidations())
+            setIsLoading(false)
+        } catch (error) {
+            setIsLoading(false)
+            setError(true)
+        }
+    }
+
+    // le useEffect également
+    useEffect(() => {
+        getConsolidations()
+    }, []);
+
+    if (isLoading) return "Loading...";
+    if (error) return <div>Something went wrong.</div>
+    return <div>data</div>
+} 
+```
+##### Composant Consolidations avec l'utilisation de react Query
+```jsx
+import React, from 'react'
+import { useQuery } from 'react-query'
+import {fetchConsolidations } from 'services'
+
+const Consolidations = () => {
+    const { isLoading, error, data } = useQuery('consolidations', () =>fetchConsolidations())
+
+    if (isLoading) return "Loading...";
+    if (error) return <div>Something went wrong.</div>
+    return <div>data</div>
+} 
+```
+
+### Communication entre les composants
 
     - props direct 
     - useContext
 
-#### 6. Architecture globale  des fichiers 
+### Architecture globale des fichiers de l'application
+Si l'on se référe à notre [conception des états](#schéma-des-multiples-reducers-de-notre-application) et [l'inventaire de nos composants](#découpage-des-composants) nous aurions ce genre d'architecture fichiers. L'idée n'est pas de la détailler entiérement mais d'avoir un aperçu de structure de base.
 
-* schéma 
+    ───Application
+        ├───node_modules
+        ├───public
+            ├───index.html
+        ├───src
+            ├───features
+                ├───DirectOrder
+                    ├───store
+                        ├───slices
+                    ├───components
+                        ├───Component1
+                        ├───Component2
+                ├───StockReporing
+                    ├───store
+                        ├───slices
+                    ├───components
+                        ├───Component1
+                        ├───Component2
+                ├───FixtureCatalog
+                    ├───store
+                        ├───slices
+                    ├───components
+                        ├───Component1
+                        ├───Component2
+                ├───Franchise
+                    ├───store
+                        ├───slices
+                            ConsolidationsSlice.js;
+                            ConsolidationsDetailsSlice.js
+                        reducer.js
+                    ├───components
+                        ├───Header
+                        ├───Component2      
+            ├───components
+                ├───Header
+                    ├───components
+                        ├───User
+                        ├───SearchBar
+                        ├───Logo
+                        ├───AppName
+                ├───Table
+                    ├───components
+                        ├───TableHeader
+                        ├───TableRow
+                        ├───TableData
+                        ├───TableFooter    
+                ├───Button
+                ├───SideBar
+                    ├───components
+                        ├───CustomLink
+                ├───Select 
+                ├───Checkbox
+                ├───Pagination
+            ├───store
+                index.js
+            App.js
 
-### C. Bonnes pratiques
+###  Bonnes pratiques
 
-#### 1. Séparer la logique du rendu visuel
+#### Séparer la logique du rendu visuel
 
     - Exemple de custom hooks
     - Bonnes pratiques 
 
-#### 2. Principe de responsabilité unique
+#### Principe de responsabilité unique
 
-#### 3. Destructuration des objets
+#### Destructuration des objets
 
-#### 4. Utilisation des propTypes
+#### Utilisation des propTypes
 
-#### 5. Utilisation des conditions de rendu 
+#### Utilisation des conditions de rendu 
 
     - Simplifier la lecture et compréhension du code avec les conditions à la volée plutôt que des ternaires
 
-#### 6. Gestion des classes CSS
+#### Gestion des classes CSS
 
     - Package classnames		
     - Package styled components 		
 
-#### 7. Utilisation d'un linter
+#### Utilisation d'un linter
 
-#### 8. Evitez les excès de commentaires
+#### Evitez les excès de commentaires
 
-### D. Librairies pratiques
+###  Librairies pratiques
 
- 
+
+
+
+
+
