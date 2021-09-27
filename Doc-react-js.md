@@ -30,15 +30,16 @@
     8. [Architecture globale des fichiers de l'application](#architecture-globale-des-fichiers-de-l'application)
     9. [Bonnes pratiques](#bonnes-pratiques)
         1. [Séparer la logique du rendu visuel](#séparer-la-logique-du-rendu-visuel)
-        2. [Principe de responsabilité unique](#principe-de-responsabilité-unique)
-        3. [Destructuration des objets](#destructuration-des-objets)
-        4. [Utilisation des propTypes](#utilisation-des-proptypes)
-        5. [Utilisation des conditions de rendu](#utilisation-des-conditions-de-rendu) 
-        6. [Gestion des classes CSS](#gestion-des-classes-css)	
-        7. [Utilisation d'un linter](#utilisation-d'un-linter)
-        8. [Utilisation de sonarlint](#utilisation-de-sonarlint)
-        9. [Evitez les excès de commentaires](#evitez-les-excès-de-commentaires)
-        10. [Librairies pratiques](#librairies-pratiques)
+        2. [Evitez les excès de commentaires](#evitez-les-excès-de-commentaires)
+        3. [Convention de nommage](#convention-de-nommage)
+        4. [Principe de responsabilité unique](#principe-de-responsabilité-unique)
+        5. [Destructuration des objets](#destructuration-des-objets)
+        6. [Utilisation des propTypes](#utilisation-des-proptypes)
+        7. [Utilisation des conditions de rendu](#utilisation-des-conditions-de-rendu) 
+        8. [Gestion des classes CSS](#gestion-des-classes-css)	
+        9. [Utilisation d'un linter](#utilisation-d'un-linter)
+        10. [Utilisation de sonarlint](#utilisation-de-sonarlint)
+        11. [Librairies pratiques](#librairies-pratiques)
 
 # Partie 1. Installation de l'environnement React 
 
@@ -95,6 +96,43 @@ En resumé pour les petits projets CRA peut être suffisant, en revanche utilise
 Documentation : https://reactrouter.com/web/guides/quick-start
 
 Dans le contexte de notre IHM, l'application globale aura un router qui redirigera vers chaque features et ensuite chaque feature gére son propre router.
+
+**Exemple App.js**
+```jsx
+import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
+//Importer le composants nécessaires
+
+const App =() => {
+    return (
+            <Router history={history}>                      
+                    <Switch>
+                        <Route path="/" component={Home} />
+                        <Route path="/direct-order" component={DirectOrder} />
+                        <Route path="/stock-reporting" component={StockReporting} />
+                        <Route path="/reset-local-prices" component={ResetLocalPrices} />
+                        <Route path="/fixture-catalog" component={FixtureCatalog} />
+                        <Route path="/purchase-management" component={OrderValidation} />
+                    </Switch>
+            </Router>
+           )
+}              
+```
+**Exemple franchise.jsx feature**
+```jsx
+import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
+//Importer le composants nécessaires
+
+const Franchise =() => {
+    return (
+            <Router history={history}>                      
+                <Switch>
+                    <Route path="/" component={Consolidations} />
+                    <Route path="detailed-synthesis" component={ConsolidationDetails} />
+                </Switch>
+            </Router>
+            )
+}              
+```
 
 #### Gestion des états globaux
 
@@ -254,14 +292,86 @@ const Consolidations = () => {
 
     if (isLoading) return "Loading...";
     if (error) return <div>Something went wrong.</div>
-    return <div>data</div>
+    return <div>
+             {data?.map((conso) => (
+                <div key={conso}>{conso}</div>
+               ))}
+            </div>
 } 
 ```
 
 ### Communication entre les composants
+Plusieurs façons existent pour communiquer entre les composants
 
-    - props direct 
-    - useContext
+        - Props directs de parent à enfant 
+        - En stockant les informations dans redux
+        - En utilisant le hook useContext
+
+Imaginons que la page d'accueil de l'application s'occupe de donner la couleur du bouton validation finale présent dans la features franchise, référence à notre [IHM](#ihm-de-référence)
+
+### Props directs
+
+Pour transmettre la proprieté à ce composant FinalValidationButton il faudrait que le app.js passe des props à admettons 4 enfants
+
+```jsx
+//le composant
+<Franchise buttonColor="red"/>
+//le composant
+<FranchiseHome buttonColor="red"/>
+//le composant
+<Consolidations buttonColor="red"/>
+//le composant
+<FinalValidationButton buttonColor="red"/>
+```
+Cette méthode peut devenir vite fastidieuse et rendre notre application peu maintenable.
+
+### Stocker la valeur dans redux
+
+Cette méthode serait pour nous mettre en place une usine à gaz pour si peu. 
+
+### UseContext
+
+Cette méthode serait la mieux adaptée pour notre besoin. En effet elle permettra de fournir au composant qui est rééllement dans le besoin de consommer la valeur sans pour autant devoir transmettre la valeur à ses composants parents.
+La bonne pratique serait de splitter les fichier de maniére suivante.
+
+**ButtonColorContext.js**
+
+```jsx
+export const ButtonColorContext = React.createContext(null);
+```
+
+**App.jsx**
+
+Dans notre cas le fait de fournir la valeur au composant franchise, tous ses enfants ont la possibilité de consommer la valeur au travers du hook useContext. Cela est bien pratique, pour éviter de passer des valeurs à des composants qui ne la consomme pas.
+Cependant rien ne nous empéche de wrapper directement notre bouton final à l'intérieur du provider. Tout dépend du besoin de l'application.
+
+```jsx
+import{ ButtonColorContext } from "ButtonColorContext.jsx";
+
+const App = () => {
+  return (
+      // on fournit la valeur au context
+    <ButtonColorContext.Provider value="red">
+      <Franchise />
+    </ButtonColorContext.Provider>
+  );
+}
+```
+
+**FinalValidationButton.jsx**
+
+```jsx
+import { useContext } from 'React'
+
+const FinalValidationButton = () => {
+  // Avec ce hooks nous consommons la valeur de ce context, en l'occurence la couleur du bouton
+  const color = useContext(ButtonColorContext);
+
+  return (
+    <button style={{color}}>Validation finale</button>
+  );
+}
+```
 
 ### Architecture globale des fichiers de l'application
 Si l'on se référe à notre [conception des états](#schéma-des-multiples-reducers-de-notre-application) et [l'inventaire de nos composants](#découpage-des-composants) nous aurions ce genre d'architecture fichiers. L'idée n'est pas de la détailler entiérement mais d'avoir un aperçu de structure de base.
@@ -326,15 +436,149 @@ Si l'on se référe à notre [conception des états](#schéma-des-multiples-redu
 ###  Bonnes pratiques
 
 #### Séparer la logique du rendu visuel
+Il est primordial de séparer la logique et l'UI dans un composant afin de faciliter la maintenabilité et aussi pouvoir eventuellement réutiliser la même logique dans d'autres composants au travers de customHooks.
 
-    - Exemple de custom hooks
-    - Bonnes pratiques 
+Supposons pour notre cas d'exemple que nous avons notre composant Consolidations qui affiche une liste de consolidations.
 
-#### Principe de responsabilité unique
+Pour ce faire nous aurons besoin de récupérer les données via une api tierce. Pour ajouter un élement logique à notre problématique, admettons que nous devons ajouter à chaque consolidation une donnée comme isChecked par exemple. 
+
+Nous aurons donc un fichier Consolidations.jsx , un custom hook useConsolidations qui renverra et traitera les données et pour finir un customHook useFetch qui nous permettra de réaliser nos requêtes vers l'api.
+
+Supposons que nous utilisons pas le hook fournit par [REACT-QUERY](#composant-consolidations-sans-l'utilisation-de-react-query) et que nous souhaitons en créer un nous même 
+
+**custom hook UseFetch.js**
+```jsx 
+export const useFetch = (url, options) => {
+  const [data, setData] = React.useState();
+  const [hasError, setHasError] = React.useState();
+  const [isLoading, setIsLoading] = React.useState();
+
+  React.useEffect(async () => {
+      try {
+            setIsLoading(true)
+            const res = await fetch(url, options);
+            const json = await res.json()  
+            setData(json);
+            setIsLoading(false)
+          } catch (error) {
+            setIsLoading(true)
+            setHasError(error)
+  });
+
+  return {data, isLoading, hasError};
+};
+```
+**Custom hook UseConsolidations.js**
+
+Ce qui nous permettra de récupérer de consolidations également dans d'autres composants peut importe l'UI et de récupérer la même logique de  traitement de données.
+
+```jsx 
+import {useFetch} from "UseFetch"
+import {fakeAggregateData} from "fakeAggregateData"
+
+export const useConsolidations = () => {
+  const {data, isLoading, hasError} = useFetch("url/conolidations",{...options});
+  const [consolidations, setConsolidations] = useState();
+
+  React.useEffect(async () => {
+  // quand data change on aggrége les données avec isChecked, 
+  // ceci est un traitement simulant une logique...
+      setConsolidations(fakeAggregateData(data))
+  },[data]);
+
+  return {consolidations, isLoading, hasError};
+};
+```
+
+**Composant Consolidations.jsx qui contient que l'UI**
+
+```jsx 
+import {useFetch} from "UseFetch"
+import {useConsolidations} from "useConsolidations"
+
+export const Consolidations = () => {
+  const {consolidations, isLoading, hasError} = useConsolidations();
+ 
+  if (isLoading) return <div>Is loadging</div>
+  if(hasError) return <div>hasError</div>
+  
+  return <div>
+    {consolidations?.map(conso =>
+         (<div key={conso}>{conso}</div>)
+    )}
+ </div> 
+};
+```
+
+
+
+
+
+
+
+
+
+
+#### Evitez les excès de commentaires
+Il est parfois nécessaire d’expliquer du code complexe par un commentaire afin de faciliter la compréhension du code.
+
+Cependant l’excès de commentaire peut avoir l’effet totalement inverse. Premièrement, cela va diminuer la visibilité du code, rendant la lecture de celui-ci plus compliqué et plus longue.
+
+Mais surtout cela peut introduire de l’incompréhension et entrainer une perte de temps importante. Effectivement, si les commentaires n’ont pas évolué en même temps que la modifications du code, ou gestion de bug, ils deviennent contre-productifs, apportant des explications qui ne sont plus d'actualité.
+
+Pour pallier à ce problème, il est conseillé de limiter au maximum le nombre de commentaires. Et il est préférable de mettre en place des régles de convention de nommage.
+
+#### Convention de nommage
+Il est primordial de définir avec son équipe une convention de nommage et de la respecter. Rédiger ensemble des règles sur le nommage que ce soit pour les fonctions les composants et les variables. Cela permettra une homogénéisation du code ; ce qui permet à toute l’équipe de gagner en rapidité de lecture et faciliter la compréhension du code dans sa globalité.
+
+**Exemple de convention**
+
+        -Les variables du type Boolean et les fonctions retournant un Boolean doivent commencer par ‘is’,’has’ ou ‘should’.
+        -Utilisez l’extension .jsx pour les composants React. (.tsx dans un contexte TypeScript)
+        -Utilisez PascalCase pour les noms de fichiers (par exemple, LoginComponent.jsx).
+        -Utilisez le nom de fichier comme nom de composant.
+        -Les gestionnaires d’événements doivent commencer par ‘handle’ (par exemple, handleSubmit).
+        -Les fonctions doivent être nommées pour leur but, et non pas comment elle le realise. Parce que la maniére dont vous réalisez le traitement peut évoluer au cours du temps, et vous ne devriez pas avoir besoin de modifier toutes les références de ces fonctions dans votre code à cause de cela.
+
+#### Principe de responsabilité unique 
+En programmation orientée objet, Robert C. Martin exprime le principe de responsabilité unique comme suit : une classe ne doit changer que pour une seule raison. Source: https://fr.wikipedia.org/wiki/Principe_de_responsabilit%C3%A9_unique
+
+Prenons l'exemple d'un module qui compile et imprime un rapport. Imaginons que ce module peut changer pour deux raisons. D'abord, le contenu du rapport peut changer. Ensuite, le format du rapport peut changer. Ces deux choses changent pour des causes différentes; l'une substantielle, et l'autre cosmétique. Le principe de responsabilité unique dit que ces deux aspects du problème ont deux responsabilités distinctes, et devraient donc être dans des classes ou des modules séparés.
+
+On peut transposer ça avec nos composants ou nos hooks. Il s'occupe d'une tâche bien précise ou affiche un élement bien précis, cela permet de maintenir le code beaucoup plus aisaiement et également débuuger beaucoup plus facilement.
+
 
 #### Destructuration des objets
+ES6 a introduit le concept de déstructuration. La déstructuration vous permet de destrcuturer les propriétés d’un objet ou des éléments d’un tableau et les récupérer directement sous forme de variables assignées.
 
+Cela permet également d’éviter la répétition très courante de props.value ou etc...
+
+
+**Exemple**
+```jsx
+// Supposons que l'on récupére ces props
+const props = {isLoading: true, data: "data", hasError:"hasError"}
+// destructuration
+const {isLoading, data, hasError} = props;
+```
 #### Utilisation des propTypes
+Les propTypes et defaultProps sont des propriétés statiques, déclarées aussi haut que possible dans le code du composant. Elles devraient être immédiatement visibles par les autres développeurs qui lisent le fichier, car elles servent de documentation pour votre code.
+
+Tous vos composants doivent avoir des propTypes dès qu’il possède des props.
+
+Les propTypes permettent de déclarer les différents types des paramètres fournit à votre composant. Si un des types n’est pas respecté, un avertissement dans la console de votre navigateur sera ajouté. Cela permet de prévenir les erreurs dans votre code et de spécifier les types attendus de vos variables.
+
+**Exemple**
+```jsx 
+import PropTypes from 'prop-types';
+ 
+const Button = ({color}) => (<button>{color}</button>);
+
+Button.propTypes = {
+  color: PropTypes.string
+};
+```
+
 
 #### Utilisation des conditions de rendu 
 
@@ -347,7 +591,6 @@ Si l'on se référe à notre [conception des états](#schéma-des-multiples-redu
 
 #### Utilisation d'un linter
 
-#### Evitez les excès de commentaires
 
 ###  Librairies pratiques
 
