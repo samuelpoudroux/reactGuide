@@ -7,7 +7,6 @@
         1. [Méthodes](#méthodes)
             1. [Manuel avec webpack et babel](#manuel-avec-webpack-et-babel)
             2. [Create-React-App](#create-react-app)
-                1. [Installation de Create-React-App](#create-react-app)
             3. [Vite](#vite)
                 1. [Installation de vite](#installation-de-vite)
             4. [Pourquoi VITE plutôt que CRA](#pourquoi-vite-plutôt-que-cra)       
@@ -17,8 +16,8 @@
     3. [React Router](#react-router)
     4. [Gestion des états globaux](#gestion-des-états-globaux)
         1. [Installation de redux et redux-toolkit](#installation-de-redux-et-redux-toolkit)
-        2. [Schéma des multiples reducers de notre application](#schéma-des-multiples-reducers-de-notre-application)
-        3. [Exemple de gestion d'état de notre config](#exemple-de-gestion-d'état-de-notre-config)
+        2. [Organisation des reducers de notre application](#organisation-des-reducers-de-notre-application)
+        3. [Exemple de gestion d'état](#exemple-de-gestion-d'état)
     5. [Découpage des composants](#découpage-des-composants)
         1. [Schéma](#schéma)
         2. [Architecture fichier d'un composant](#architecture-fichier-d'un-composant)
@@ -34,13 +33,12 @@
         2. [Evitez les excès de commentaires](#evitez-les-excès-de-commentaires)
         3. [Convention de nommage](#convention-de-nommage)
         4. [Principe de responsabilité unique](#principe-de-responsabilité-unique)
-        5. [Destructuration des objets](#destructuration-des-objets)
+        5. [Destructuration d'élements](#destructuration-d'élements)
         6. [Utilisation des propTypes](#utilisation-des-proptypes)
         7. [Utilisation des conditions de rendu](#utilisation-des-conditions-de-rendu) 
         8. [Gestion des classes CSS](#gestion-des-classes-css)	
         9. [Utilisation d'un linter](#utilisation-d'un-linter)
-        10. [Utilisation de sonarlint](#utilisation-de-sonarlint)
-        11. [Librairies pratiques](#librairies-pratiques)
+        10. [Librairies pratiques](#librairies-pratiques)
 
 # Partie 1. Installation de l'environnement React 
 
@@ -51,8 +49,8 @@ Installation du serveur et gestionnaire de paquets
 node js => https://nodejs.org/en/
 
 ## Création d'un projet React
-## Méthodes
-- ### Manuel avec webpack et babel
+### Méthodes
+- #### Manuel avec webpack et babel
    Suivre la prcocédure https://imranhsayed.medium.com/set-up-react-app-with-webpack-webpack-dev-server-and-babel-from-scratch-df398174446d
 
     **liens utiles:**
@@ -61,22 +59,21 @@ node js => https://nodejs.org/en/
 
     https://webpack.js.org/loaders/babel-loader/
 
-- ###  Create-React-App
+- #### Create-React-App
 
-    #### Installation de Create-React-App
-Suivre la prcocédure https://create-react-app.dev/docs/getting-started
+Pour l'installation et la documentation => suivre la prcocédure https://create-react-app.dev/docs/getting-started
 
-- ### Vite
-    #### Installation de vite
-Suivre la prcocédure https://vitejs.dev/guide/
+- #### Vite
+Pour l'installation de vite et la configuration,
+suivre la prcocédure https://vitejs.dev/guide/
 
-## II. Pourquoi VITE plutôt que CRA
+#### ***Pourquoi VITE plutôt que CRA***
 
-**CRA**
+***CRA***
 
-Create React App est un outil efficace pour créer facilement un projet React, en effet il fournit de nombreuses fonctionnalités utiles telles que le HMR (Hot Module Replacement) ainsi que le serveur de développement. Cependant, il présente un gros inconvénient qui est le manque de performance que ce soit pour le développement ou le build,  surtout pour les gros projets. CRA utilise derriére webpack.
+Create React App est un outil efficace pour créer facilement un projet React, en effet il fournit de nombreuses fonctionnalités utiles telles que le HMR (Hot Module Replacement) ainsi que le serveur de développement. Cependant, il présente un gros inconvénient qui est le manque de performance que ce soit pour le développement ou le build, surtout pour les gros projets. CRA utilise derriére webpack pour.
 
-**VITE**
+***VITE***
 
 C'est un outil de nouvelle génération pour construire le front, Outil créé par Evan You créateur de vue-js. Il dispose d'une interface de ligne de commande solide qui facilite considérablement le processus de configuration du projet. Il fonctionne très rapidement et possède de nombreuses fonctionnalités intéressantes fournies par CRA. De plus, il existe des plugins qui peuvent être ajoutés et rendent le processus de développement plus simple.
 Lorsque CRA et Vite sont comparés, il existe de nombreuses différences en termes d'expérience et de temps de construction. Dans CRA, il n'y a littéralement pas de fichier de configuration pour le processus de construction, tout est super simple. Cela facilite la vie des petits projets, mais lorsque le projet prend de l'ampleur, le processus de construction doit être configuré en fonction des besoins du projet. En revanche, Vite fournit un fichier vite.config.js qui contient des configurations supplémentaires pour le projet et il est vraiment simple et facile à configurer.  
@@ -90,13 +87,13 @@ En resumé pour les petits projets CRA peut être suffisant, en revanche utilise
 ### IHM de référence
 ![IHM](./IHM_My_business.png)
 
-### Conception technique 
+## Conception technique 
 
-#### React router
+- ### React router
 
 Documentation : https://reactrouter.com/web/guides/quick-start
 
-Dans le contexte de notre IHM, l'application globale aura un router qui redirigera vers chaque features et ensuite chaque feature gére son propre router.
+Dans le contexte de notre IHM, l'application globale présentera un router qui redirigera vers chaque features. Ensuite chaque feature gére ses routes aux travers des switchs.
 
 **Exemple App.js**
 ```jsx
@@ -116,38 +113,41 @@ const App =() => {
                     </Switch>
             </Router>
            )
-}              
+}
 ```
-**Exemple franchise.jsx feature**
+**Exemple route de la fonctionnalité franchise avec l'utilisation de Lazy**
+L'utilisation de lazy permettra de charger le composant seulement si la page est visitée, gain de performance.
+
 ```jsx
-import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
-//Importer le composants nécessaires
+import { Redirect, Route, Switch } from 'react-router-dom';
+//Importer le composants nécessaires avec lazy
+const LazyConsolidations = React.lazy(() => import('./components/consolidations'))
+const LazyDetailConsolidations = React.lazy(() => import('./components/DetailConsolidations'))
 
 const Franchise =() => {
     return (
-            <Router history={history}>                      
                 <Switch>
-                    <Route path="/" component={Consolidations} />
-                    <Route path="detailed-synthesis" component={ConsolidationDetails} />
+                    <Route path="/" component={LazyConsolidations} />
+                    <Route path="detailed-synthesis" component={LazyDetailConsolidations} />
                 </Switch>
-            </Router>
             )
 }              
 ```
 
-#### Gestion des états globaux
+- ### Gestion des états globaux
 
-#### Installation de redux et redux-toolkit
+##### ***Installation de redux et redux-toolkit***
+
 Suivre la proccédure de cette documentation https://redux.js.org/introduction/getting-started
 
-#### Schéma des multiples reducers de notre application
+##### ***Organisation des reducers de notre application***
 ![IHM](./out/redux/redux.svg)
 
-#### Exemple de gestion d'état de notre config
-Dans ce contexte nous créons un fichier configSlice.js. Cet état nous permettra de mettre à disposition de toute l'application et micro-applications les données du magasin selectionné et celles de l'utilisateur. 
+##### ***Exemple de gestion d'état***
+Dans ce contexte nous devons gérer l'état de la configuation, donc créons un fichier configSlice.js. Ce slice nous permettra de mettre à disposition de toute l'application et micro-applications les actions et les données concernant les données relatives au magasin selectionné et celle de l'utilisateur. 
 
 **configSlice.js**
-```js configSlice.js
+```jsx
 import { createSlice } from '@reduxjs/toolkit';
 import { useSelector } from 'react-redux';
 
@@ -183,9 +183,9 @@ export const useSelectedStore = () => useSelector(getSelectedStore);
 }
 ``` 
 
-**Déclencher l'action de mise à jour du state config**
+**Déclencher l'action de mise à jour de l'état config**
 
-Imaginons un composant User.jsx qui affichera le nom de l'utilisateur et qui s'occupera de déclencher l'action nécessaire pour la mise à jour du state global
+Imaginons un composant User.jsx qui affichera le nom de l'utilisateur et qui s'occupera de déclencher l'action nécessaire pour la mise à jour de l'état global.
 ```jsx 
 import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -207,15 +207,15 @@ export const User = () => {
     }
  ```
  
-### Découpage des composants
+- ### Découpage des composants
 Découper l'IHM en composants permet de concéptualiser notre application à savoir les composants qui seront utilisables sur l'application globale ou uniquement par un composant plus restreint. 
 
 A travers le schéma ci dessous, nous avons découpé les composants qui seraient utilisables dans un perimêtre global ou plutôt restreint. Plus on découpe mieux cela est pour la maintenabilité du code.
 
-#### Schéma
+#### ***Schéma***
 ![IHM](./out/listOfComponents/listOfComponents.svg)
 
-#### Architecture fichier d'un composant
+#### ***Architecture fichier d'un composant***
 Prenons par exemple le composant Button qui est situé dans le perimêtre global, nous découperons le composant ainsi
 
     ├───Button
@@ -225,7 +225,7 @@ Prenons par exemple le composant Button qui est situé dans le perimêtre global
         ├───Services.test.js
         ├───Button.test.jsx
        
-Si un composant posséde des composants réutilisables seulement dans ce composant, créer un dossier components dans le perimêtre associé du composant comme par **exemple**
+Si un composant posséde des composants réutilisables uniquement dans le perimêtre de ce composant, créer un dossier components ainsi:
 
     ───Button
         ├───index.jsx
@@ -240,15 +240,15 @@ Si un composant posséde des composants réutilisables seulement dans ce composa
                 ├───Services.js
                 ├───Services.test.js
                 ├───IconButton.test.jsx
-### Gestion Requêtes Api
-#### React-Query
+- ### Gestion Requêtes Api
+#### ***React-Query***
 Documentation => https://react-query.tanstack.com/overview
 
-Cette bibliothéque  facilite la récupération, la mise en cache, la synchronisation et la mise à jour de l'état du serveur de nos applications React. Cela permet également d'éviter d'ajouter du code superflux.
+Cette bibliothéque  facilite la récupération, la mise en cache, la synchronisation et la mise à jour de l'état du serveur de nos applications React. Cela permet également d'éviter d'ajouter du code superflux. Cela permet également de décider de mettre en cache des données recues de l'api et qui permettra durant toute la durée du cache de ne pas effectuer les appels à nouveau. React query est une gestion de données provenant du server side (des apis). On utilisera redux ou les contextes pour gérer les états UI de nos applications.
 
 Par exemple dans notre [IHM](#ihm-de-référence) nous avons besoin de créer un composant qui renverra une liste de consolidations. Ce composant peut être largement simplifié grace au hook react-query, ce qui simplifie la lisibilité du code en plus de tous les autres avantages liés à cette bibliothéque.
 
-#### L'interêt factuel d'utiliser React-query
+#### ***L'interêt factuel d'utiliser React-query***
 ##### Composant Consolidations sans l'utilisation de react Query
 ```jsx
 import React, {useEffetct, useState} from 'react'
@@ -289,7 +289,8 @@ import { useQuery } from 'react-query'
 import {fetchConsolidations } from 'services'
 
 const Consolidations = () => {
-    const { isLoading, error, data } = useQuery('consolidations', () =>fetchConsolidations())
+    // dans ce cas le staleTime veut dire que tout autres composant qui fera appel à useQuery dans les 30 secondes avec la clé consolidations, l'appel ne sera pas effectué.
+    const { isLoading, error, data } = useQuery('consolidations', () =>fetchConsolidations(), {staleTime: 30000})
 
     if (isLoading) return "Loading...";
     if (error) return <div>Something went wrong.</div>
@@ -301,18 +302,19 @@ const Consolidations = () => {
 } 
 ```
 
-### Communication entre les composants
+- ### Communication entre les composants
+
 Plusieurs façons existent pour communiquer entre les composants
 
-        - Props directs de parent à enfant 
-        - En stockant les informations dans redux
-        - En utilisant le hook useContext
+    - Props directs de parent à enfant 
+    - En stockant les informations dans redux
+    - En utilisant le hook useContext
 
-Imaginons que la page d'accueil de l'application s'occupe de donner la couleur du bouton validation finale présent dans la features franchise, référence à notre [IHM](#ihm-de-référence)
+Imaginons que notre composant Home à pour rôle de gérer la couleur du bouton validation finale présent dans la features franchise, référence à notre [IHM](#ihm-de-référence)
 
-### Props directs
+#### ***Props directs***
 
-Pour transmettre la proprieté à ce composant FinalValidationButton il faudrait que le app.js passe des props à admettons 4 enfants
+Pour transmettre la proprieté à ce composant FinalValidationButton il faudrait que le composant Home transmette des props à admettons 4 enfants.
 
 ```jsx
 //le composant
@@ -326,11 +328,11 @@ Pour transmettre la proprieté à ce composant FinalValidationButton il faudrait
 ```
 Cette méthode peut devenir vite fastidieuse et rendre notre application peu maintenable.
 
-### Stocker la valeur dans redux
+#### ***Stocker la valeur dans redux***
 
-Cette méthode serait pour nous mettre en place une usine à gaz pour si peu. 
+Cette méthode serait pdans ce contecte mettre en place une usine à gaz pour si peu. 
 
-### UseContext
+#### ***UseContext***
 
 Cette méthode serait la mieux adaptée pour notre besoin. En effet elle permettra de fournir au composant qui est rééllement dans le besoin de consommer la valeur sans pour autant devoir transmettre la valeur à ses composants parents.
 La bonne pratique serait de splitter les fichier de maniére suivante.
@@ -374,8 +376,9 @@ const FinalValidationButton = () => {
 }
 ```
 
-### Architecture globale des fichiers de l'application
-Si l'on se référe à notre [conception des états](#schéma-des-multiples-reducers-de-notre-application) et [l'inventaire de nos composants](#découpage-des-composants) nous aurions ce genre d'architecture fichiers. L'idée n'est pas de la détailler entiérement mais d'avoir un aperçu de structure de base.
+- ### Architecture globale des fichiers de l'application
+
+Si l'on se référe à notre [conception des états](#organisation-des-reducers-de-notre-application) et [l'inventaire de nos composants](#découpage-des-composants) nous aurions ce genre d'architecture fichiers. L'idée n'est pas de la détailler entiérement mais d'avoir un aperçu de structure de base.
 
     ───Application
         ├───node_modules
@@ -434,9 +437,10 @@ Si l'on se référe à notre [conception des états](#schéma-des-multiples-redu
                 index.js
             App.js
 
-###  Bonnes pratiques 
+##  Bonnes pratiques 
 
-#### Séparer la logique du rendu visuel
+- ### Séparer la logique du rendu visuel
+
 Il est primordial de séparer la logique de l'UI dans un composant afin de faciliter la maintenabilité et aussi pouvoir eventuellement réutiliser la même logique dans d'autres composants au travers de customHooks.
 
 Supposons pour notre cas d'exemple que nous avons notre composant Consolidations qui affiche une liste de consolidations.
@@ -445,7 +449,7 @@ Pour ce faire nous aurons besoin de récupérer les données via une api tierce.
 
 Nous aurons donc un fichier Consolidations.jsx , un custom hook useConsolidations qui renverra et traitera les données et pour finir un customHook useFetch qui nous permettra de réaliser nos requêtes vers l'api.
 
-Supposons que nous utilisons pas le hook fournit par [REACT-QUERY](#composant-consolidations-sans-l'utilisation-de-react-query) et que nous souhaitons en créer un nous même. 
+Supposons que nous utilisons pas le hook fournit par [REACT-QUERY](##react-query) pour gérer la récupération des données via l'api, et que nous souhaitons en créer un nous même. 
 
 **custom hook UseFetch.js**
 ```jsx 
@@ -511,16 +515,8 @@ export const Consolidations = () => {
 };
 ```
 
+- ### Evitez les excès de commentaires
 
-
-
-
-
-
-
-
-
-#### Evitez les excès de commentaires
 Il est parfois nécessaire d’expliquer du code complexe par un commentaire afin de faciliter la compréhension du code.
 
 Cependant l’excès de commentaire peut avoir l’effet totalement inverse. Premièrement, cela va diminuer la visibilité du code, rendant la lecture de celui-ci plus compliqué et plus longue.
@@ -529,19 +525,26 @@ Mais surtout cela peut introduire de l’incompréhension et entrainer une perte
 
 Pour pallier à ce problème, il est conseillé de limiter au maximum le nombre de commentaires. Et il est préférable de mettre en place des régles de convention de nommage.
 
-#### Convention de nommage
-Il est primordial de définir avec son équipe une convention de nommage et de la respecter. Rédiger ensemble des règles sur le nommage que ce soit pour les fonctions les composants et les variables. Cela permettra une homogénéisation du code ; ce qui permet à toute l’équipe de gagner en rapidité de lecture et faciliter la compréhension du code dans sa globalité.
+- ### Convention de nommage
 
-**Exemple de convention**
+Il est primordial de définir avec son équipe une convention de nommage et de la respecter. Rédiger ensemble des règles sur le nommage que ce soit pour les fonctions les composants et les variables. Cela permettra une homogénéisation du code, ce qui permet à toute l’équipe de gagner en rapidité de lecture et faciliter la compréhension du code dans sa globalité.
 
-        -Les variables du type Boolean et les fonctions retournant un Boolean doivent commencer par ‘is’,’has’ ou ‘should’.
-        -Utilisez l’extension .jsx pour les composants React. (.tsx dans un contexte TypeScript)
-        -Utilisez PascalCase pour les noms de fichiers (par exemple, LoginComponent.jsx).
-        -Utilisez le nom de fichier comme nom de composant.
-        -Les gestionnaires d’événements doivent commencer par ‘handle’ (par exemple, handleSubmit).
-        -Les fonctions doivent être nommées pour leur but, et non pas comment elle le realise. Parce que la maniére dont vous réalisez le traitement peut évoluer au cours du temps, et vous ne devriez pas avoir besoin de modifier toutes les références de ces fonctions dans votre code à cause de cela.
+#### ***Exemple de convention***
 
-#### Principe de responsabilité unique 
+    -Les variables du type Boolean et les fonctions retournant un Boolean doivent commencer par ‘is’,’has’ ou ‘should’.
+
+    -Utilisez l’extension .jsx pour les composants React. (.tsx dans un contexte TypeScript).
+
+    -Utilisez PascalCase pour les noms de fichiers (par exemple, LoginComponent.jsx).
+
+    -Utilisez le nom de fichier comme nom de composant.
+
+    -Les gestionnaires d’événements doivent commencer par ‘handle’ (par exemple, handleSubmit).
+
+    -Les fonctions doivent être nommées pour leur but, et non pas comment elle le realise. Parce que la maniére dont vous réalisez le traitement peut évoluer au cours du temps, et vous ne devriez pas avoir besoin de modifier toutes les références de ces fonctions dans votre code à cause de cela.
+
+- ### Principe de responsabilité unique 
+
 En programmation orientée objet, Robert C. Martin exprime le principe de responsabilité unique comme suit : une classe ne doit changer que pour une seule raison. Source: https://fr.wikipedia.org/wiki/Principe_de_responsabilit%C3%A9_unique
 
 Prenons l'exemple d'un module qui compile et imprime un rapport. Imaginons que ce module peut changer pour deux raisons. D'abord, le contenu du rapport peut changer. Ensuite, le format du rapport peut changer. Ces deux choses changent pour des causes différentes; l'une substantielle, et l'autre cosmétique. Le principe de responsabilité unique dit que ces deux aspects du problème ont deux responsabilités distinctes, et devraient donc être dans des classes ou des modules séparés.
@@ -549,7 +552,8 @@ Prenons l'exemple d'un module qui compile et imprime un rapport. Imaginons que c
 On peut transposer ça avec nos composants ou nos hooks ou nos fonctions. Il s'occupe d'une tâche bien précise ou affiche un élement bien précis, cela permet de maintenir le code beaucoup plus aisaiement et également débugger beaucoup plus facilement. Assurez vous que chaque fonction répond à un besoin précis et correctement.
 
 
-#### Destructuration d'élements
+- ### Destructuration d'élements
+
 ES6 a introduit le concept de déstructuration. La déstructuration vous permet de destrcuturer les propriétés d’un objet ou des éléments d’un tableau et les récupérer directement sous forme de variables assignées.
 
 Cela permet également d’éviter la répétition très courante de props.value ou etc...
@@ -562,7 +566,7 @@ const props = {isLoading: true, data: "data", hasError:"hasError"}
 // destructuration
 const {isLoading, data, hasError} = props;
 ```
-#### Utilisation des propTypes
+- ### Utilisation des propTypes
 Les propTypes et defaultProps sont des propriétés statiques, déclarées aussi haut que possible dans le code du composant. Elles devraient être immédiatement visibles par les autres développeurs qui lisent le fichier, car elles servent de documentation pour votre code.
 
 Tous vos composants doivent avoir des propTypes dès qu’il possède des props.
@@ -581,9 +585,9 @@ Button.propTypes = {
 ```
 
 
-#### Utilisation des conditions de rendu 
+- ### Utilisation des conditions de rendu 
 
-**Conditions dans le JSX**
+#### **Conditions dans le JSX**
 
 Les valeurs false, null, undefined et true sont des enfants valides pour React. Or ils ne s’affichent pas dans le rendu. Ce qui permet de s’en servir de condition pour rendre conditionnel l'affichage de certains composants.
 
@@ -595,7 +599,7 @@ const Component = () => (
     </div>
 )
 ```
-**Conditions ternaires**
+#### **Conditions ternaires**
 
 Les conditions ternaires imbriquées ne sont généralement pas lisibles. Plus les conditions sont complexes plus la lecture est difficile. Juste pour un simple gain de syntaxe ou de place il est déconseillé de sacrifier la lisibilité.
 
@@ -635,9 +639,9 @@ const Component = () => {
 
 ```
 
-#### Gestion des classes CSS
+- ### Gestion des classes CSS
 
-**classnames**
+#### ***classnames***
 
 classnames est un trés bon package pour générer des noms de classes de composants et ainsi gérer les styles dynamiques. En pratique, il existe de nombreux cas où différents styles doivent être appliqués au même composant. Pour éviter l'accumulation de conditions dans votre code, qui réduisent considérablement la lisibilité, nous pouvons préparer les noms de classe à l’aide de ce package. 
 
@@ -655,7 +659,7 @@ const btnClass = classNames('btn', {
 return <button className={btnClass}>{label}</button>;
 ```
 
-**styled-components**
+#### **styled-components**
 
 Documentation => https://styled-components.com/docs/basics#getting-started
 
@@ -722,46 +726,54 @@ const Component = () => (
 ```
 
 
-#### Utilisation d'un linter
+- ### Utilisation d'un linter
+
 Utiliser un linter permet d'analyser statiquement du code et vérifie que celui-ci respecte un certain nombre de standard.  Cela assure d'être constant concernant le respect des normes et également d'être à jour réguliérement sans effort particulier sur les bonnes pratiques de développement concernant React-js ou autres languages d'ailleur. En effet, les mises à jour du Linter prennent en considération les évolutions des bonnes pratiques de développement.
 
 Cet outil est très simple à mettre en place et assure une bonne qualité de votre code. Un outil indispensable ! 
 
 Documentation => EsLint (https://eslint.org/), TsLint (https://palantir.github.io/tslint/)
 
-###  Librairies pratiques
+## Librairies pratiques
 
-#### Frameworks basés sur React
+- ### Frameworks basés sur React
+
 [NEXT.JS](https://nextjs.org/)
 
-[GATSBY.JS](https://www.gatsbyjs.com/)
+ [GATSBY.JS](https://www.gatsbyjs.com/)
 
-#### Gestion d'états
+- ### Gestion d'états
+
 [REDUX](https://redux.js.org/)
 
-#### Formulaires
+- ### Formulaires
+
 [FORMIK](https://formik.org/)
 
-[REACT-HOOK-FORM](https://react-hook-form.com/)
+ [REACT-HOOK-FORM](https://react-hook-form.com/)
 
-#### Tableaux
+- ### Tableaux
+
 [REACT-TABLE](https://react-table.tanstack.com/)
 
-#### Requête api
+- ### Requête api
+
 [REACT-QUERY](https://react-query.tanstack.com/)
 
-#### Tests
+- ### Tests
+
 [REACT-TESTING-LIBRARY](https://testing-library.com/docs/react-testing-library/intro/)
 
-[JEST](https://jestjs.io/docs/getting-started)
+ [JEST](https://jestjs.io/docs/getting-started)
 
 
-#### UI
+- ### UI
+
 [REACT-BOOTSTRAP](https://react-bootstrap.github.io/)
 
-[MATERIAL-UI](https://mui.com/getting-started/usage/)
+ [MATERIAL-UI](https://mui.com/getting-started/usage/)
 
-[ANTD](https://ant.design/)
+ [ANTD](https://ant.design/)
 
 
 
