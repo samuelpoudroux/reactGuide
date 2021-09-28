@@ -1,4 +1,5 @@
 ﻿<!-- # SOMMAIRE -->
+# Méthodologie React-js
 #Sommaire
  1. [Partie 1. Installation de l'environnement React](#partie-1.-installation-de-l'environnement-react)
     1. [Prérequis](#prérequis) 
@@ -433,10 +434,10 @@ Si l'on se référe à notre [conception des états](#schéma-des-multiples-redu
                 index.js
             App.js
 
-###  Bonnes pratiques
+###  Bonnes pratiques 
 
 #### Séparer la logique du rendu visuel
-Il est primordial de séparer la logique et l'UI dans un composant afin de faciliter la maintenabilité et aussi pouvoir eventuellement réutiliser la même logique dans d'autres composants au travers de customHooks.
+Il est primordial de séparer la logique de l'UI dans un composant afin de faciliter la maintenabilité et aussi pouvoir eventuellement réutiliser la même logique dans d'autres composants au travers de customHooks.
 
 Supposons pour notre cas d'exemple que nous avons notre composant Consolidations qui affiche une liste de consolidations.
 
@@ -444,7 +445,7 @@ Pour ce faire nous aurons besoin de récupérer les données via une api tierce.
 
 Nous aurons donc un fichier Consolidations.jsx , un custom hook useConsolidations qui renverra et traitera les données et pour finir un customHook useFetch qui nous permettra de réaliser nos requêtes vers l'api.
 
-Supposons que nous utilisons pas le hook fournit par [REACT-QUERY](#composant-consolidations-sans-l'utilisation-de-react-query) et que nous souhaitons en créer un nous même 
+Supposons que nous utilisons pas le hook fournit par [REACT-QUERY](#composant-consolidations-sans-l'utilisation-de-react-query) et que nous souhaitons en créer un nous même. 
 
 **custom hook UseFetch.js**
 ```jsx 
@@ -545,10 +546,10 @@ En programmation orientée objet, Robert C. Martin exprime le principe de respon
 
 Prenons l'exemple d'un module qui compile et imprime un rapport. Imaginons que ce module peut changer pour deux raisons. D'abord, le contenu du rapport peut changer. Ensuite, le format du rapport peut changer. Ces deux choses changent pour des causes différentes; l'une substantielle, et l'autre cosmétique. Le principe de responsabilité unique dit que ces deux aspects du problème ont deux responsabilités distinctes, et devraient donc être dans des classes ou des modules séparés.
 
-On peut transposer ça avec nos composants ou nos hooks. Il s'occupe d'une tâche bien précise ou affiche un élement bien précis, cela permet de maintenir le code beaucoup plus aisaiement et également débuuger beaucoup plus facilement.
+On peut transposer ça avec nos composants ou nos hooks ou nos fonctions. Il s'occupe d'une tâche bien précise ou affiche un élement bien précis, cela permet de maintenir le code beaucoup plus aisaiement et également débugger beaucoup plus facilement. Assurez vous que chaque fonction répond à un besoin précis et correctement.
 
 
-#### Destructuration des objets
+#### Destructuration d'élements
 ES6 a introduit le concept de déstructuration. La déstructuration vous permet de destrcuturer les propriétés d’un objet ou des éléments d’un tableau et les récupérer directement sous forme de variables assignées.
 
 Cela permet également d’éviter la répétition très courante de props.value ou etc...
@@ -582,20 +583,185 @@ Button.propTypes = {
 
 #### Utilisation des conditions de rendu 
 
-    - Simplifier la lecture et compréhension du code avec les conditions à la volée plutôt que des ternaires
+**Conditions dans le JSX**
+
+Les valeurs false, null, undefined et true sont des enfants valides pour React. Or ils ne s’affichent pas dans le rendu. Ce qui permet de s’en servir de condition pour rendre conditionnel l'affichage de certains composants.
+
+```jsx
+const Component = () => (
+    <div>
+        {isLoading && !user && <Loader />}
+        {!isLoading && user && <User/>}
+    </div>
+)
+```
+**Conditions ternaires**
+
+Les conditions ternaires imbriquées ne sont généralement pas lisibles. Plus les conditions sont complexes plus la lecture est difficile. Juste pour un simple gain de syntaxe ou de place il est déconseillé de sacrifier la lisibilité.
+
+ **Exemple**
+```jsx
+//Mauvaise pratique
+const Component = () => {
+    const [user, setUser] = useState({ isLoggedIn: true, hasEmail: true });
+
+    return (
+        <div>
+            {user ? user.isLoggedIn ? <GreatingsUser/> : user.hasEmail? <GreatingsEmail/> :
+                <GreatingsGuest /> : null }
+        </div>
+    )
+}
+```
+
+```jsx
+//Bonne pratique + de lignes de code mais plus facilement lisable
+const Component = () => {
+    const [user, setUser] = useState({ isLoggedIn: true, hasEmail: true });
+    const {isLoggedIn, hasEmail} = user
+
+    const renderUser = () => {
+        if (isLoggedIn) {
+            return <h1>GreatingUser</h1>;
+        } else if (hasEmail) {
+            return <h1>GreatingsEmail</h1>;
+        } else {
+            return <h1>GreatingsGuest</h1>;
+        }
+    };
+
+    return <div>{renderUser()}</div>;
+}
+
+```
 
 #### Gestion des classes CSS
 
-    - Package classnames		
-    - Package styled components 		
+**classnames**
+
+classnames est un trés bon package pour générer des noms de classes de composants et ainsi gérer les styles dynamiques. En pratique, il existe de nombreux cas où différents styles doivent être appliqués au même composant. Pour éviter l'accumulation de conditions dans votre code, qui réduisent considérablement la lisibilité, nous pouvons préparer les noms de classe à l’aide de ce package. 
+
+Documentation => https://www.npmjs.com/package/classnames
+
+**Exemple**
+```jsx
+import classNames from 'classnames';
+
+const btnClass = classNames('btn', {
+      'btn-pressed': isPressed,
+      'btn-over': !isPressed && isHovered
+    });
+
+return <button className={btnClass}>{label}</button>;
+```
+
+**styled-components**
+
+Documentation => https://styled-components.com/docs/basics#getting-started
+
+La force de cette librairie est de faciliter la création de composants visuels minimalistes et configurables, en combinant du CSS standard et un peu de JavaScript. Ces composants deviendront littéralement des pièces d'assemblage qui pourront être utilisées et partagées entre les UIs de toutes vos applications.
+
+Avec styled, on peut isoler le CSS et le DOM de la vue, ce qui va simplifier amplement le code relatif à la partie "métier" de l'application, et améliorer la lisibilité.
+
+**Solution en pure CSS-in-JS**
+
+```jsx
+const styles = {
+  box: {
+    width: '60%',
+    border: '1px solid silver'
+  },
+  title: {
+    fontSize: '1.2em',
+    fontWeight: 'bold'
+  },
+  description: {
+    fontSize: '0.8em'
+  },
+  important: {
+    fontWeight: 'bold'
+  }
+}
+
+const Component = () => (
+    // notre composant intègre le style directement dans le jsx
+    <div className={ styles.box }>
+        <div className={ styles.title }>{ title }</div>
+        <div className={ classnames(styles.description, styles.important) }>{ description }</div>
+    <div/>  
+)
+```
+
+**Solution avec styled-component**
+
+Cette solution est parfaite pour adapter et préstyler les éléments que ce soit les containers, les views, les composants de maniére isolée en pouvant les rééutiliser dans d'autres endroits de l'application sans pour autant utiliser les classes css. 
+
+```jsx
+import styled from "styled-components";
+
+const Box = styled.div`
+  width: 60%;
+  border: 1px solid silver;
+`
+const Title = styled.div`
+  font-size: 1.2em;
+  font-weight: bold;
+`
+const Description = styled.div`
+  font-size: 0.8em;
+  font-weight: ${ props => props.important ? 'bold' : 'normal '}
+`
+
+const Component = () => (
+    <Box>
+        <Title>{ title }</Title>
+        <Description important>{ description }</Description>
+    </Box>
+)
+
+```
+
 
 #### Utilisation d'un linter
+Utiliser un linter permet d'analyser statiquement du code et vérifie que celui-ci respecte un certain nombre de standard.  Cela assure d'être constant concernant le respect des normes et également d'être à jour réguliérement sans effort particulier sur les bonnes pratiques de développement concernant React-js ou autres languages d'ailleur. En effet, les mises à jour du Linter prennent en considération les évolutions des bonnes pratiques de développement.
 
+Cet outil est très simple à mettre en place et assure une bonne qualité de votre code. Un outil indispensable ! 
+
+Documentation => EsLint (https://eslint.org/), TsLint (https://palantir.github.io/tslint/)
 
 ###  Librairies pratiques
 
+#### Frameworks basés sur React
+[NEXT.JS](https://nextjs.org/)
+
+[GATSBY.JS](https://www.gatsbyjs.com/)
+
+#### Gestion d'états
+[REDUX](https://redux.js.org/)
+
+#### Formulaires
+[FORMIK](https://formik.org/)
+
+[REACT-HOOK-FORM](https://react-hook-form.com/)
+
+#### Tableaux
+[REACT-TABLE](https://react-table.tanstack.com/)
+
+#### Requête api
+[REACT-QUERY](https://react-query.tanstack.com/)
+
+#### Tests
+[REACT-TESTING-LIBRARY](https://testing-library.com/docs/react-testing-library/intro/)
+
+[JEST](https://jestjs.io/docs/getting-started)
 
 
+#### UI
+[REACT-BOOTSTRAP](https://react-bootstrap.github.io/)
+
+[MATERIAL-UI](https://mui.com/getting-started/usage/)
+
+[ANTD](https://ant.design/)
 
 
 
