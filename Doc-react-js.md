@@ -303,7 +303,6 @@ const Consolidations = () => {
 ```
 
 - ### Communication entre les composants
-
 Plusieurs façons existent pour communiquer entre les composants
 
     - Props directs de parent à enfant 
@@ -449,7 +448,7 @@ Pour ce faire nous aurons besoin de récupérer les données via une api tierce.
 
 Nous aurons donc un fichier Consolidations.jsx , un custom hook useConsolidations qui renverra et traitera les données et pour finir un customHook useFetch qui nous permettra de réaliser nos requêtes vers l'api.
 
-Supposons que nous utilisons pas le hook fournit par [REACT-QUERY](##react-query) pour gérer la récupération des données via l'api, et que nous souhaitons en créer un nous même. 
+Supposons que nous utilisons pas le hook fournit par [REACT-QUERY](#composant-consolidations-sans-l'utilisation-de-react-query) pour gérer la récupération des données via l'api, et que nous souhaitons en créer un nous même. 
 
 **custom hook UseFetch.js**
 ```jsx 
